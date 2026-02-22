@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - MyCourse{% endblock %}
+
+{% block content %}
+<div class="animate-fade" style="display: flex; align-items: center; justify-content: center; min-height: 70vh;">
+    <div class="card" style="width: 100%; max-width: 500px; text-align: center;">
+        <h2 style="margin-bottom: 1.5rem;">Secure Checkout</h2>
+        <div id="course-summary"
+            style="padding: 1.5rem; background: var(--bg); border-radius: 16px; margin-bottom: 2rem;">
+            <h4 id="pay-title" style="margin-bottom: 0.5rem;">MyCourse Pro Course</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Total Amount</p>
+            <h1 id="pay-price" style="color: var(--primary); font-size: 2.5rem; font-weight: 800;">₹499.00</h1>
+        </div>
+
+        <div style="text-align: left; margin-bottom: 2rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.8rem; font-size: 0.9rem;">Card
+                Details</label>
+            <div
+                style="padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: #ffffff; color: var(--text-muted); font-size: 0.9rem;">
+                •••• •••• •••• ••••
+            </div>
+        </div>
+
+        <button id="pay-now" class="btn btn-primary" style="width: 100%; padding: 1rem;">Complete Payment</button>
+        <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">
+            Your payment is secure. Credits will be added instantly.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    const tax = total * 0.18;
+    const grandTotal = total + tax;
+
+    if (cart.length > 0) {
+        document.getElementById('pay-title').innerText = `${cart.length} Course(s) in Cart`;
+        document.getElementById('pay-price').innerText = `₹${grandTotal.toFixed(2)}`;
+    }
+
+    document.getElementById('pay-now').onclick = async () => {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            showToast('Please login to complete purchase', 'error');
+            return;
+        }
+
+        if (cart.length === 0) return;
+
+        showToast('Processing payment...', 'success');
+
+        // Actually enroll in each course
+        let successCount = 0;
+        for (const item of cart) {
+            const res = await api.request(`${API_URL}/courses/${item.id}/enroll/`, { method: 'POST' });
+            if (res.ok) successCount++;
+        }
+
+        if (successCount === cart.length) {
+            showToast('Success! You are now enrolled.', 'success');
+            localStorage.removeItem('mycourse_cart');
+            setTimeout(() => {
+                window.location.href = '/dashboard/';
+            }, 1500);
+        } else if (successCount > 0) {
+            showToast(`Partially successful. Enrolled in ${successCount} courses.`, 'info');
+            localStorage.removeItem('mycourse_cart');
+            setTimeout(() => window.location.href = '/dashboard/', 1500);
+        } else {
+            showToast('Payment processing failed. Please try again.', 'error');
+        }
+    };
+</script>
+{% endblock %}

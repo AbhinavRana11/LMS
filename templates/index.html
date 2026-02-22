@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - MyCourse{% endblock %}
+
+{% block content %}
+<div class="hero-dot-pattern"></div>
+<div class="animate-fade">
+    <!-- Hero - bold headline, no Udemy-style box -->
+    <section class="hero-home">
+        <div class="hero-home-content">
+            <p class="hero-home-label">Learn from experts. Build your future.</p>
+            <h1 class="hero-home-title">Start learning <span class="sig-font">today</span></h1>
+            <p class="hero-home-desc">Hand-picked courses to help you master new skills and advance your career.</p>
+            <a href="/courses/" class="btn btn-primary" style="margin-top: 1rem;">Explore courses</a>
+        </div>
+        <div class="hero-home-visual">
+            <div class="hero-home-card">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span>100+ courses</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Welcome back (logged in) -->
+    <div id="welcome-section" class="welcome-bar" style="display: none;">
+        <div id="welcome-avatar" class="welcome-avatar">AR</div>
+        <div>
+            <h2 class="welcome-title">Welcome back, <span id="welcome-name"></span></h2>
+            <a href="/dashboard/" class="welcome-link">Go to my learning →</a>
+        </div>
+    </div>
+
+    <!-- Featured courses - clean section -->
+    <section class="section-block">
+        <h2 class="section-title">Featured courses</h2>
+        <p class="section-desc">Top picks to get you started</p>
+        <div class="grid grid-featured" id="featured-courses"></div>
+    </section>
+
+    <!-- My Learning (when logged in) -->
+    <section id="learning-section" class="section-block" style="display: none;">
+        <div class="section-head">
+            <h2 class="section-title">Continue learning</h2>
+            <a href="/dashboard/" class="section-link">My learning</a>
+        </div>
+        <div class="grid" id="learning-grid"></div>
+    </section>
+
+    <!-- What to learn next -->
+    <section class="section-block">
+        <h2 class="section-title">What to learn next</h2>
+        <p class="section-desc">Browse our full catalog</p>
+        <div class="grid" id="main-course-grid"></div>
+    </section>
+
+    <!-- Login/Register Overlay (Hidden by default) -->
+    <div id="auth-overlay"
+        style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 3000; align-items: center; justify-content: center;">
+        <div class="card animate-fade" style="width: 100%; max-width: 450px;">
+            <div id="login-form-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="font-weight: 800; font-size: 2rem;">Log in</h2>
+                    <button onclick="closeAuth()" style="background: none; border: none; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="login-form">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Username</label>
+                        <input type="text" id="login-username" placeholder="Enter your username" required>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign
+                        In</button>
+                </form>
+                <p style="text-align: center; margin-top: 2rem; color: var(--text-muted);">
+                    Don't have an account? <a href="#" id="to-register"
+                        style="color: var(--primary); font-weight: 700; text-decoration: none;">Create one</a>
+                </p>
+            </div>
+
+            <div id="register-form-container" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="font-weight: 800; font-size: 2rem;">Sign up</h2>
+                    <button onclick="closeAuth()" style="background: none; border: none; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form id="register-form">
+                    <div style="margin-bottom: 1.2rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Username</label>
+                        <input type="text" id="reg-username" required>
+                    </div>
+                    <div style="margin-bottom: 1.2rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Role</label>
+                        <select id="reg-role">
+                            <option value="student">Student</option>
+                            <option value="instructor">Instructor</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1.2rem;">
+                        <label style="display: block; margin-bottom: 0.4rem; font-weight: 600;">Password</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create
+                        Account</button>
+                </form>
+                <p style="text-align: center; margin-top: 2rem; color: var(--text-muted);">
+                    Already have an account? <a href="#" id="to-login"
+                        style="color: var(--primary); font-weight: 700; text-decoration: none;">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginContainer = document.getElementById('login-form-container');
+    const registerContainer = document.getElementById('register-form-container');
+
+    function openAuth(register = false) {
+        document.getElementById('auth-overlay').style.display = 'flex';
+        if (register) {
+            loginContainer.style.display = 'none';
+            registerContainer.style.display = 'block';
+        } else {
+            loginContainer.style.display = 'block';
+            registerContainer.style.display = 'none';
+        }
+    }
+
+    loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const result = await api.login(
+            document.getElementById('login-username').value.trim(),
+            document.getElementById('login-password').value
+        );
+        if (result.ok) {
+            closeAuth();
+            window.location.reload();
+        } else {
+            showToast(result.error || 'Invalid username or password', 'error');
+        }
+    };
+
+    registerForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const res = await api.request(`${API_URL}/accounts/register/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                username: document.getElementById('reg-username').value,
+                password: document.getElementById('reg-password').value,
+                role: document.getElementById('reg-role').value
+            })
+        });
+        if (res.ok) {
+            showToast('Registration successful! Please login.', 'success');
+            registerContainer.style.display = 'none';
+            loginContainer.style.display = 'block';
+        } else {
+            const errData = await res.json();
+            const errMsg = Object.entries(errData).map(([k, v]) => `${k}: ${v}`).join(', ');
+            showToast(`Error: ${errMsg}`, 'error');
+        }
+    };
+
+    function closeAuth() {
+        document.getElementById('auth-overlay').style.display = 'none';
+    }
+
+    window.closeAuth = closeAuth; // Export to global scope
+
+    // Attach login modal to the actual Log in button (by id, not by href)
+    const authBtn = document.getElementById('auth-btn');
+    if (authBtn) {
+        authBtn.onclick = (e) => {
+            if (localStorage.getItem('access_token')) return;
+            e.preventDefault();
+            openAuth(false);
+        };
+    }
+    const regBtn = document.getElementById('reg-btn');
+    if (regBtn) {
+        regBtn.onclick = (e) => {
+            e.preventDefault();
+            openAuth(true);
+        };
+    }
+
+    // Open login or register modal when arriving with ?login or ?register
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('register') === 'true') {
+        openAuth(true);
+    } else if (urlParams.get('login') === 'true') {
+        openAuth(false);
+    }
+
+    async function init() {
+        // Fetch courses for the grids
+        const res = await api.request(`${API_URL}/courses/`);
+        if (res.ok) {
+            const courses = await res.json();
+
+            // Render Featured (First 3)
+            const featuredList = document.getElementById('featured-courses');
+            featuredList.innerHTML = courses.slice(0, 3).map(c => {
+                const stars = '★'.repeat(Math.round(c.average_rating || 4)) + '☆'.repeat(5 - Math.round(c.average_rating || 4));
+                return `
+                <div class="card animate-fade" style="padding: 0; cursor: pointer; overflow: hidden;" onclick="window.location.href='/courses/${c.id}/'">
+                    <div class="course-card-img-wrap">
+                        <img src="${c.banner_image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}" 
+                             style="display: block; width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80'">
+                    </div>
+                    <div class="course-card-body">
+                        <h4 class="course-card-title">${c.title}</h4>
+                        <p class="course-card-meta">Expert Instructor</p>
+                        <div class="course-card-rating">${c.average_rating || '4.5'} ${stars} <span>(${c.rating_count || '120'})</span></div>
+                        <div class="course-card-price">₹${c.price}</div>
+                        <span class="course-card-badge">Premium</span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+
+            const mainGrid = document.getElementById('main-course-grid');
+            mainGrid.innerHTML = courses.map(c => {
+                const stars = '★'.repeat(Math.round(c.average_rating || 4)) + '☆'.repeat(5 - Math.round(c.average_rating || 4));
+                return `
+                <div class="card animate-fade" style="padding: 0; cursor: pointer; overflow: hidden;" onclick="window.location.href='/courses/${c.id}/'">
+                    <div class="course-card-img-wrap">
+                        <img src="${c.banner_image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}" 
+                             style="display: block; width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80'">
+                    </div>
+                    <div class="course-card-body">
+                        <h4 class="course-card-title">${c.title}</h4>
+                        <p class="course-card-meta">Expert Instructor</p>
+                        <div class="course-card-rating">${c.average_rating || '4.5'} ${stars} <span>(${c.rating_count || '250'})</span></div>
+                        <div class="course-card-price">₹${c.price}</div>
+                        <span class="course-card-badge">Premium</span>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Handle Profile/Welcome
+        const token = localStorage.getItem('access_token');
+        if (token) {
+            const profileRes = await api.request(`${API_URL}/accounts/profile/`);
+            if (profileRes.ok) {
+                const user = await profileRes.json();
+                document.getElementById('welcome-section').style.display = 'flex';
+                document.getElementById('welcome-name').innerText = user.username;
+                document.getElementById('welcome-avatar').innerText = user.username.slice(0, 2).toUpperCase();
+
+                // Base.html adjustments
+                document.getElementById('auth-nav').style.display = 'none';
+                document.getElementById('user-profile').style.display = 'flex';
+                document.getElementById('user-avatar').innerText = user.username.slice(0, 2).toUpperCase();
+
+                // Fetch Enrolled Courses for 'Let's start learning'
+                const enrolledRes = await api.request(`${API_URL}/accounts/profile/`);
+                if (enrolledRes.ok) {
+                    const data = await enrolledRes.json();
+                    if (data.enrolled_courses && data.enrolled_courses.length > 0) {
+                        document.getElementById('learning-section').style.display = 'block';
+                        const grid = document.getElementById('learning-grid');
+                        grid.innerHTML = data.enrolled_courses.map(c => `
+                            <div class="card animate-fade" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" onclick="window.location.href='/courses/${c.id}/'">
+                                <div style="height: 120px; position: relative;">
+                                    <img src="${c.banner_image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80'}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.1);"></div>
+                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #1c1d1f;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>
+                                    </div>
+                                </div>
+                                <div style="padding: 0.8rem;">
+                                    <h4 style="font-size: 0.85rem; margin-bottom: 0.3rem; line-height: 1.2; font-weight: 700;">${c.title}</h4>
+                                    <p style="font-size: 0.7rem; color: #6a6f73; margin-bottom: 0.8rem;">Expert Instructor</p>
+                                    <div class="progress-bar"><div class="progress-fill" style="width: 35%;"></div></div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+        }
+    }
+
+    init();
+</script>
+{% endblock %}

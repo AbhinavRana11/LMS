@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Shopping Cart - MyCourse{% endblock %}
+
+{% block content %}
+<div class="animate-fade" style="max-width: 900px; margin: 0 auto;">
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin-bottom: 3rem;">Your Shopping Cart</h1>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+        <div>
+            <div id="cart-items" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <!-- Loaded via JS -->
+            </div>
+            <div id="empty-cart" style="display: none; text-align: center; padding: 5rem 0;">
+                <div
+                    style="width: 80px; height: 80px; background: #f1f5f9; color: #94a3b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+                <h3 style="margin-bottom: 1rem;">Your cart is empty</h3>
+                <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't added any courses yet.
+                </p>
+                <a href="/courses/" class="btn btn-primary">Browse Courses</a>
+            </div>
+        </div>
+
+        <div>
+            <div class="card" style="position: sticky; top: 120px;">
+                <h3 style="margin-bottom: 1.5rem;">Order Summary</h3>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <p style="color: var(--text-muted);">Subtotal</p>
+                    <p id="subtotal" style="font-weight: 700;">₹0</p>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <p style="color: var(--text-muted);">Tax (GST 18%)</p>
+                    <p id="tax" style="font-weight: 700;">₹0</p>
+                </div>
+                <div
+                    style="border-top: 1px solid var(--border); margin: 1.5rem 0; padding-top: 1.5rem; display: flex; justify-content: space-between;">
+                    <p style="font-weight: 800; font-size: 1.2rem;">Total</p>
+                    <p id="total" style="font-weight: 800; font-size: 1.2rem; color: var(--primary);">₹0</p>
+                </div>
+                <button onclick="proceedToCheckout()" class="btn btn-primary" style="width: 100%;" id="checkout-btn">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function renderCart() {
+        const cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+        const list = document.getElementById('cart-items');
+        const empty = document.getElementById('empty-cart');
+
+        if (cart.length === 0) {
+            list.style.display = 'none';
+            empty.style.display = 'block';
+            document.getElementById('checkout-btn').disabled = true;
+            return;
+        }
+
+        list.style.display = 'flex';
+        empty.style.display = 'none';
+        document.getElementById('checkout-btn').disabled = false;
+
+        let subtotal = 0;
+        list.innerHTML = cart.map((item, index) => {
+            subtotal += item.price;
+            return `
+                <div class="card animate-fade" style="display: flex; gap: 1.5rem; align-items: center; padding: 1rem;">
+                    <div style="width: 120px; height: 80px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&q=80" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">${item.title}</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">Expert Instructor</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-weight: 800; color: var(--primary); margin-bottom: 0.5rem;">₹${item.price}</p>
+                        <button onclick="removeFromCart(${index})" style="background: none; border: none; color: #ef4444; font-size: 0.75rem; font-weight: 700; cursor: pointer;">Remove</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const tax = subtotal * 0.18;
+        document.getElementById('subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+        document.getElementById('tax').innerText = `₹${tax.toFixed(2)}`;
+        document.getElementById('total').innerText = `₹${(subtotal + tax).toFixed(2)}`;
+    }
+
+    function removeFromCart(index) {
+        let cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+        cart.splice(index, 1);
+        localStorage.setItem('mycourse_cart', JSON.stringify(cart));
+        updateCartBadge();
+        renderCart();
+    }
+
+    function proceedToCheckout() {
+        // For the demo, we'll just take the first item's price or total and go to payment
+        const cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+        if (cart.length > 0) {
+            // We can pass total via URL or state, but for simplicity let's just go
+            window.location.href = '/payment/';
+        }
+    }
+
+    renderCart();
+</script>
+{% endblock %}

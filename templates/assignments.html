@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Detail - MyCourse{% endblock %}
+
+{% block content %}
+<div class="animate-fade">
+    <div id="course-header"
+        style="position: relative; margin: -2rem -8% 4rem; height: 350px; border-radius: 0 0 40px 40px; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 8%;">
+        <img id="header-banner" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80"
+            style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(0.6);">
+        <div style="position: relative; z-index: 10; color: white;">
+            <h1 id="course-title"
+                style="font-size: 3.5rem; font-weight: 900; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                Loading...</h1>
+            <div id="course-rating-header"
+                style="display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin-bottom: 1.5rem; color: #ffc107;">
+                <span id="rating-avg" style="font-size: 1.2rem; font-weight: 800; color: white;">4.5</span>
+                <span id="rating-stars" style="font-size: 1.1rem;">★★★★☆</span>
+                <span id="rating-count" style="font-size: 0.9rem; color: rgba(255,255,255,0.8);">(120 ratings)</span>
+            </div>
+            <p id="course-desc"
+                style="max-width: 800px; margin: 0 auto; font-size: 1.2rem; opacity: 0.9; line-height: 1.6;"></p>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 3rem;">
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div
+                style="background: #1e293b; height: 400px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
+                <div style="text-align: center;">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-bottom: 1rem;">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    <p>Select a lesson to start learning</p>
+                </div>
+            </div>
+            <div style="padding: 2rem;">
+                <h3 id="current-lesson-title">Course Content</h3>
+                <div id="lesson-content" style="margin-top: 1rem; color: var(--text-muted); line-height: 1.6;"></div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <div class="card">
+                <h3 style="margin-bottom: 1.5rem;">Lessons</h3>
+                <div id="lessons-list" style="display: flex; flex-direction: column; gap: 1rem;"></div>
+            </div>
+
+            <div class="card" id="enrollment-card">
+                <h3 style="margin-bottom: 1rem;">Enrollment</h3>
+                <p id="enroll-price"
+                    style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem;">₹499.00
+                </p>
+                <button id="add-to-cart-btn" class="btn btn-glass" style="width: 100%; margin-bottom: 0.75rem; border: 2px solid var(--primary); color: var(--primary);">Add to Cart</button>
+                <button id="enroll-btn" class="btn btn-primary" style="width: 100%;">Enroll Now</button>
+            </div>
+
+            <div class="card" id="assignment-card" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem;">Assignments</h3>
+                <div id="assignments-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div style="margin-top: 5rem; border-top: 1px solid #e2e8f0; padding-top: 4rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem;">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">Student Reviews</h2>
+                <p style="color: var(--text-muted);">What others are saying about this course</p>
+            </div>
+            <button id="add-review-btn" class="btn btn-primary"
+                style="display: none; padding: 0.8rem 1.5rem; border-radius: 4px; background: #1c1d1f;"
+                onclick="openReviewModal()">Rate this Course</button>
+        </div>
+
+        <div id="reviews-list"
+            style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-bottom: 5rem;">
+            <!-- Reviews loaded via JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div id="review-modal"
+    style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="card animate-fade" style="width: 90%; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-weight: 800;">Rate this Course</h3>
+            <button onclick="document.getElementById('review-modal').style.display='none'"
+                style="background:none; border:none; cursor:pointer;"><svg width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg></button>
+        </div>
+        <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem;" id="star-selector">
+            <span onclick="setRate(1)" data-val="1" class="star-rating"
+                style="font-size: 2.5rem; cursor: pointer; color: #cbd5e1;">★</span>
+            <span onclick="setRate(2)" data-val="2" class="star-rating"
+                style="font-size: 2.5rem; cursor: pointer; color: #cbd5e1;">★</span>
+            <span onclick="setRate(3)" data-val="3" class="star-rating"
+                style="font-size: 2.5rem; cursor: pointer; color: #cbd5e1;">★</span>
+            <span onclick="setRate(4)" data-val="4" class="star-rating"
+                style="font-size: 2.5rem; cursor: pointer; color: #cbd5e1;">★</span>
+            <span onclick="setRate(5)" data-val="5" class="star-rating"
+                style="font-size: 2.5rem; cursor: pointer; color: #cbd5e1;">★</span>
+        </div>
+        <textarea id="review-comment" placeholder="Tell us what you liked (or didn't liked) about the course!" rows="4"
+            style="margin-bottom: 1.5rem; border: 1px solid #d1d7dc; border-radius: 4px; padding: 1rem; width: 100%; font-family: inherit; font-size: 1rem;"></textarea>
+        <button id="submit-review" class="btn btn-primary"
+            style="width: 100%; height: 50px; background: #1c1d1f; border-radius: 4px;">Submit Review</button>
+    </div>
+</div>
+
+<!-- Submission Modal -->
+<div id="submission-modal"
+    style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="card animate-fade" style="width: 90%; max-width: 500px;">
+        <h3 style="margin-bottom: 1.5rem;">Submit Assignment</h3>
+        <textarea id="sub-text" placeholder="Explain your submission..." rows="4"
+            style="margin-bottom: 1.2rem;"></textarea>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Attachment</label>
+            <input type="file" id="sub-file" style="padding: 0.5rem 0;">
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button id="submit-confirm" class="btn btn-primary" style="flex: 1;">Submit</button>
+            <button onclick="document.getElementById('submission-modal').style.display='none'"
+                class="btn btn-glass">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const cid = window.location.pathname.split('/').filter(Boolean).pop();
+    let currentCourse = null;
+
+    async function init() {
+        const res = await api.request(`${API_URL}/courses/${cid}/`);
+        if (res.ok) {
+            currentCourse = await res.json();
+            document.getElementById('course-title').innerText = currentCourse.title;
+            document.getElementById('course-desc').innerText = currentCourse.description;
+            document.getElementById('header-banner').src = currentCourse.banner_image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80';
+            document.getElementById('header-banner').onerror = () => document.getElementById('header-banner').src = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&q=80';
+
+            // Enrollment price and Add to Cart
+            document.getElementById('enroll-price').innerText = '₹' + (currentCourse.price ?? '499');
+            updateAddToCartButton();
+
+            // Update Rating Header
+            const ratingAvg = currentCourse.average_rating || 4.5;
+            document.getElementById('rating-avg').innerText = ratingAvg;
+            document.getElementById('rating-stars').innerText = '★'.repeat(Math.round(ratingAvg)) + '☆'.repeat(5 - Math.round(ratingAvg));
+            document.getElementById('rating-count').innerText = `(${currentCourse.rating_count || 120} ratings)`;
+
+            const lessonsList = document.getElementById('lessons-list');
+            lessonsList.innerHTML = currentCourse.lessons.map(l => `
+                <div onclick="showLesson(${l.id})" style="padding: 1rem; background: var(--bg); border-radius: 12px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 32px; height: 32px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: var(--primary);">${l.order}</div>
+                    <span style="font-weight: 600;">${l.title}</span>
+                </div>
+            `).join('');
+
+            // Fetch and display reviews
+            loadReviews();
+
+            // Check enrollment status
+            const token = localStorage.getItem('access_token');
+            if (token) {
+                const profileRes = await api.request(`${API_URL}/accounts/profile/`);
+                if (profileRes.ok) {
+                    const userData = await profileRes.json();
+                    const isEnrolled = userData.enrolled_courses.some(c => c.id == cid);
+                    if (isEnrolled) {
+                        document.getElementById('enrollment-card').style.display = 'none';
+                        document.getElementById('add-review-btn').style.display = 'block';
+                    }
+                }
+            }
+        }
+
+        const assignRes = await api.request(`${API_URL}/assignments/`);
+        if (assignRes.ok) {
+            const allAssigns = await assignRes.json();
+            const courseAssigns = allAssigns.filter(a => a.course == cid);
+            const list = document.getElementById('assignments-list');
+            if (courseAssigns.length > 0) {
+                document.getElementById('assignment-card').style.display = 'block';
+                list.innerHTML = courseAssigns.map(a => `
+                    <div style="padding: 1rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem;">
+                        <h4 style="margin-bottom: 0.5rem;">${a.title}</h4>
+                        <button onclick="openSubmission(${a.id})" class="btn btn-glass btn-sm" style="width: 100%;">Submit Now</button>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
+    function showLesson(lid) {
+        const lesson = currentCourse.lessons.find(l => l.id == lid);
+        document.getElementById('current-lesson-title').innerText = lesson.title;
+        document.getElementById('lesson-content').innerText = lesson.content;
+    }
+
+    function addToCart(id, title, price) {
+        let cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+        if (cart.find(item => item.id === id)) {
+            showToast('Item already in cart', 'info');
+            return;
+        }
+        cart.push({ id, title, price });
+        localStorage.setItem('mycourse_cart', JSON.stringify(cart));
+        updateCartBadge();
+        showToast('Added to cart!', 'success');
+        updateAddToCartButton();
+    }
+
+    function updateAddToCartButton() {
+        if (!currentCourse) return;
+        const btn = document.getElementById('add-to-cart-btn');
+        if (!btn) return;
+        const cart = JSON.parse(localStorage.getItem('mycourse_cart') || '[]');
+        const inCart = cart.some(item => item.id == currentCourse.id);
+        if (inCart) {
+            btn.innerText = 'In Cart';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.style.cursor = 'not-allowed';
+        } else {
+            btn.innerText = 'Add to Cart';
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+    }
+
+    document.getElementById('add-to-cart-btn').onclick = () => {
+        if (!currentCourse) return;
+        addToCart(currentCourse.id, currentCourse.title, currentCourse.price);
+    };
+
+    document.getElementById('enroll-btn').onclick = async () => {
+        const res = await api.request(`${API_URL}/courses/${cid}/enroll/`, { method: 'POST' });
+        if (res.ok) {
+            showToast('Enrolled successfully!', 'success');
+            document.getElementById('enrollment-card').style.display = 'none';
+            document.getElementById('add-review-btn').style.display = 'block';
+        } else {
+            showToast('Enrollment failed. Are you logged in?', 'error');
+        }
+    };
+
+    async function loadReviews() {
+        const res = await api.request(`${API_URL}/reviews/course/${cid}/`);
+        if (res.ok) {
+            const reviews = await res.json();
+            const list = document.getElementById('reviews-list');
+            if (reviews.length > 0) {
+                list.innerHTML = reviews.map(r => `
+                    <div class="card" style="padding: 1.5rem; background: #f8fafc; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                            <div style="width: 40px; height: 40px; background: #1c1d1f; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem;">${r.student_name[0].toUpperCase()}</div>
+                            <div>
+                                <h4 style="font-size: 0.95rem; font-weight: 800;">${r.student_name}</h4>
+                                <div style="color: #ffc107; font-size: 0.8rem;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} <span style="color: #6a6f73; margin-left: 0.5rem; font-weight: 500;">Recent</span></div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.95rem; line-height: 1.5; color: #1c1d1f;">${r.comment || 'No comment provided.'}</p>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = '<p style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 2rem;">No reviews yet. Be the first to rate!</p>';
+            }
+        }
+    }
+
+    let selectedRate = 0;
+    function setRate(val) {
+        selectedRate = val;
+        const stars = document.querySelectorAll('.star-rating');
+        stars.forEach((s, i) => {
+            s.style.color = i < val ? '#ffc107' : '#cbd5e1';
+        });
+    }
+
+    function openReviewModal() {
+        document.getElementById('review-modal').style.display = 'flex';
+    }
+
+    document.getElementById('submit-review').onclick = async () => {
+        if (!selectedRate) return showToast('Please select a rating!', 'error');
+        const res = await api.request(`${API_URL}/reviews/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                course: cid,
+                rating: selectedRate,
+                comment: document.getElementById('review-comment').value
+            })
+        });
+        if (res.ok) {
+            showToast('Thank you for your review!', 'success');
+            document.getElementById('review-modal').style.display = 'none';
+            window.location.reload();
+        } else {
+            showToast('Failed to submit review', 'error');
+        }
+    };
+
+    let targetAssignId = null;
+    function openSubmission(aid) {
+        targetAssignId = aid;
+        document.getElementById('submission-modal').style.display = 'flex';
+    }
+
+    document.getElementById('submit-confirm').onclick = async () => {
+        const formData = new FormData();
+        formData.append('assignment', targetAssignId);
+        formData.append('content', document.getElementById('sub-text').value);
+        const fileInput = document.getElementById('sub-file');
+        if (fileInput.files[0]) {
+            formData.append('file', fileInput.files[0]);
+        }
+        const token = localStorage.getItem('access_token');
+        const realRes = await fetch(`${API_URL}/submissions/`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+        if (realRes.ok) {
+            showToast('Assignment submitted!', 'success');
+            document.getElementById('submission-modal').style.display = 'none';
+        } else {
+            showToast('Submission failed', 'error');
+        }
+    };
+
+    init();
+</script>
+{% endblock %}

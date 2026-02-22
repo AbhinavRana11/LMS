@@ -1,0 +1,389 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MyCourse{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrap animate-fade">
+    <!-- Header: Welcome + Role + Quick links -->
+    <header class="dashboard-header">
+        <div class="dashboard-header-inner">
+            <div>
+                <h1 class="dashboard-title">Dashboard</h1>
+                <p id="user-welcome" class="dashboard-subtitle">Welcome back!</p>
+            </div>
+            <div class="dashboard-header-actions">
+                <span id="role-badge" class="role-badge">Student</span>
+                <a href="/courses/" class="btn btn-glass btn-sm">Browse Courses</a>
+                <a id="admin-panel-link" href="/admin/" class="btn btn-primary btn-sm" style="display: none;">Admin Panel</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats: clear labels, same for all roles -->
+    <section class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-courses">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label" id="stat-courses-label">My Courses</span>
+                <span class="stat-value" id="stat-courses">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-submissions">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Submissions</span>
+                <span class="stat-value" id="stat-submissions">0</span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-grade">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Avg Grade</span>
+                <span class="stat-value" id="stat-grade">—</span>
+            </div>
+        </div>
+        <div class="stat-card" id="stat-revenue-card" style="display: none;">
+            <div class="stat-icon stat-icon-revenue">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="stat-content">
+                <span class="stat-label">Revenue</span>
+                <span class="stat-value" id="stat-revenue">₹0</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main content: two columns -->
+    <div class="dashboard-grid">
+        <div class="dashboard-main">
+            <!-- My Learning / My Courses -->
+            <section class="dashboard-card">
+                <h2 class="dashboard-card-title">
+                    <span id="courses-section-title">My Learning</span>
+                </h2>
+                <p class="dashboard-card-desc" id="courses-section-desc">Your enrolled courses. Continue where you left off.</p>
+                <div id="enrolled-courses" class="course-list">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </section>
+
+            <!-- My Submissions -->
+            <section class="dashboard-card" id="student-submissions-card">
+                <h2 class="dashboard-card-title">My Submissions</h2>
+                <p class="dashboard-card-desc">Assignment submissions and grades.</p>
+                <div id="submissions-list" class="submissions-list">
+                    <p class="empty-state">Loading...</p>
+                </div>
+            </section>
+
+            <!-- Pending Reviews (Instructor/Admin) -->
+            <section class="dashboard-card" id="instructor-grading-card" style="display: none;">
+                <h2 class="dashboard-card-title">Pending Reviews</h2>
+                <p class="dashboard-card-desc">Grade student assignment submissions.</p>
+                <div id="pending-submissions" class="pending-list">
+                    <p class="empty-state">No pending reviews.</p>
+                </div>
+            </section>
+        </div>
+
+        <aside class="dashboard-sidebar">
+            <section class="dashboard-card quick-actions-card">
+                <h2 class="dashboard-card-title">Quick Actions</h2>
+                <div id="instructor-tools" style="display: none; flex-direction: column; gap: 0.75rem;">
+                    <button type="button" onclick="showCreateCourse()" class="btn btn-primary" style="width: 100%;">Create New Course</button>
+                    <p class="quick-desc">Add lessons and assignments from your course pages.</p>
+                </div>
+                <div id="student-tools">
+                    <p class="quick-desc">Discover new courses and track your progress here.</p>
+                    <a href="/courses/" class="btn btn-primary" style="width: 100%;">Browse Courses</a>
+                    <a href="/cart/" class="btn btn-glass" style="width: 100%; margin-top: 0.5rem;">View Cart</a>
+                </div>
+            </section>
+        </aside>
+    </div>
+</div>
+
+<!-- Create Course Modal -->
+<div id="course-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <h3 style="margin-bottom: 1rem;">Create New Course</h3>
+        <input type="text" id="c-title" placeholder="Course Title" class="modal-input">
+        <textarea id="c-desc" placeholder="Course Description" rows="4" class="modal-textarea"></textarea>
+        <div class="modal-actions">
+            <button type="button" id="save-course" class="btn btn-primary">Create Course</button>
+            <button type="button" onclick="document.getElementById('course-modal').style.display='none'" class="btn btn-glass">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Grade Submission Modal -->
+<div id="grade-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <h3 style="margin-bottom: 1rem;">Grade Submission</h3>
+        <input type="hidden" id="g-sub-id">
+        <input type="number" id="g-score" placeholder="Score (0-100)" class="modal-input">
+        <input type="text" id="g-grade" placeholder="Grade (e.g. A, B+)" class="modal-input">
+        <textarea id="g-feedback" placeholder="Feedback for student..." rows="3" class="modal-textarea"></textarea>
+        <div class="modal-actions">
+            <button type="button" id="save-grade" class="btn btn-primary">Save Grade</button>
+            <button type="button" onclick="document.getElementById('grade-modal').style.display='none'" class="btn btn-glass">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Lesson Modal -->
+<div id="lesson-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <h3 style="margin-bottom: 1rem;">Add New Lesson</h3>
+        <input type="hidden" id="l-course-id">
+        <input type="text" id="l-title" placeholder="Lesson Title" class="modal-input">
+        <textarea id="l-content" placeholder="Lesson Content" rows="4" class="modal-textarea"></textarea>
+        <input type="number" id="l-order" placeholder="Order (e.g. 1)" class="modal-input">
+        <div class="modal-actions">
+            <button type="button" id="save-lesson" class="btn btn-primary">Add Lesson</button>
+            <button type="button" onclick="document.getElementById('lesson-modal').style.display='none'" class="btn btn-glass">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Add Assignment Modal -->
+<div id="assignment-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+        <h3 style="margin-bottom: 1rem;">Create New Assignment</h3>
+        <input type="hidden" id="a-course-id">
+        <input type="text" id="a-title" placeholder="Assignment Title" class="modal-input">
+        <textarea id="a-desc" placeholder="Instructions / Description" rows="4" class="modal-textarea"></textarea>
+        <label class="modal-label">Deadline</label>
+        <input type="datetime-local" id="a-deadline" class="modal-input">
+        <div class="modal-actions">
+            <button type="button" id="save-assignment" class="btn btn-primary">Create Assignment</button>
+            <button type="button" onclick="document.getElementById('assignment-modal').style.display='none'" class="btn btn-glass">Cancel</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let user = null;
+
+    async function init() {
+        const profileRes = await api.request(`${API_URL}/accounts/profile/`);
+        if (profileRes.ok) {
+            user = await profileRes.json();
+            document.getElementById('user-welcome').innerText = `Welcome back, ${user.username}`;
+            const roleLabel = (user.role || 'student').replace(/^\w/, c => c.toUpperCase());
+            document.getElementById('role-badge').innerText = roleLabel;
+
+            if (user.role === 'admin') {
+                document.getElementById('admin-panel-link').style.display = 'inline-flex';
+                document.getElementById('stat-revenue-card').style.display = 'flex';
+            }
+            if (user.role === 'instructor' || user.role === 'admin') {
+                document.getElementById('instructor-tools').style.display = 'flex';
+                document.getElementById('student-tools').style.display = 'none';
+                document.getElementById('courses-section-title').innerText = 'My Courses';
+                document.getElementById('courses-section-desc').innerText = 'Courses you teach. Add lessons and assignments.';
+                document.getElementById('stat-courses-label').innerText = 'Courses';
+                document.getElementById('instructor-grading-card').style.display = 'block';
+                document.getElementById('stat-revenue-card').style.display = 'flex';
+            }
+        }
+
+        const statsRes = await api.request(`${API_URL}/courses/stats/`);
+        if (statsRes.ok) {
+            const stats = await statsRes.json();
+            document.getElementById('stat-courses').innerText = stats.total_courses;
+            document.getElementById('stat-submissions').innerText = stats.total_submissions;
+            document.getElementById('stat-grade').innerText = stats.average_grade || '—';
+            const revEl = document.getElementById('stat-revenue');
+            if (revEl) revEl.innerText = '₹' + (stats.total_revenue || 0);
+        }
+
+        if (user && (user.role === 'instructor' || user.role === 'admin')) {
+            const allSubRes = await api.request(`${API_URL}/submissions/`);
+            if (allSubRes.ok) {
+                const allSubs = await allSubRes.json();
+                const pending = allSubs.filter(s => s.grade === null);
+                const pendingList = document.getElementById('pending-submissions');
+                if (pending.length === 0) {
+                    pendingList.innerHTML = '<p class="empty-state">No pending reviews. Great job!</p>';
+                } else {
+                    pendingList.innerHTML = pending.map(s => `
+                        <div class="pending-item">
+                            <div>
+                                <strong>${s.student_name || 'Student'}</strong>
+                                <span class="muted">Assignment #${s.assignment}</span>
+                            </div>
+                            <button type="button" onclick="openGradeModal(${s.id})" class="btn btn-primary btn-sm">Grade</button>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        const isInstructor = user && (user.role === 'instructor' || user.role === 'admin');
+        const list = document.getElementById('enrolled-courses');
+
+        if (isInstructor) {
+            const courseRes = await api.request(`${API_URL}/courses/`);
+            if (courseRes.ok) {
+                const courses = await courseRes.json();
+                const mine = courses.filter(c => c.instructor_name === user.username || c.instructor === user.id);
+                if (mine.length === 0) {
+                    list.innerHTML = '<p class="empty-state">You haven\'t created any courses yet. Click "Create New Course" to start.</p>';
+                } else {
+                    list.innerHTML = mine.map(c => courseCard(c, true)).join('');
+                }
+            }
+        } else {
+            if (user && user.enrolled_courses && user.enrolled_courses.length > 0) {
+                list.innerHTML = user.enrolled_courses.map(c => courseCard(c, false)).join('');
+            } else {
+                list.innerHTML = '<p class="empty-state">You are not enrolled in any course yet. <a href="/courses/">Browse courses</a> to get started.</p>';
+            }
+        }
+
+        const subRes = await api.request(`${API_URL}/submissions/`);
+        if (subRes.ok) {
+            const subs = await subRes.json();
+            const mySubs = user ? subs.filter(s => String(s.student) === String(user.id) || s.student_name === user.username) : subs;
+            const subList = document.getElementById('submissions-list');
+            if (mySubs.length === 0) {
+                subList.innerHTML = '<p class="empty-state">No submissions yet. Submit assignments from your course pages.</p>';
+            } else {
+                subList.innerHTML = mySubs.map(s => `
+                    <div class="submission-item">
+                        <div>
+                            <strong>Assignment #${s.assignment}</strong>
+                            <span class="muted">${new Date(s.submitted_at).toLocaleDateString()}</span>
+                        </div>
+                        <span class="grade-badge ${s.grade ? 'graded' : 'pending'}">${s.grade || 'Pending'}${s.score ? ' · ' + s.score : ''}</span>
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
+    function courseCard(c, isInstructor) {
+        const title = c.title || 'Untitled';
+        const lessons = (c.lessons && c.lessons.length) || 0;
+        const instructorName = c.instructor_name || 'Expert';
+        const price = c.price != null ? c.price : '—';
+        return `
+            <div class="course-list-item">
+                <div class="course-list-item-main">
+                    <h4><a href="/courses/${c.id}/">${title}</a></h4>
+                    <p class="muted">${lessons} lessons · ${instructorName} · ₹${price}</p>
+                </div>
+                <div class="course-list-item-actions">
+                    <a href="/courses/${c.id}/" class="btn btn-glass btn-sm">Open</a>
+                    ${isInstructor ? `
+                        <button type="button" onclick="openLessonModal(${c.id})" class="btn btn-primary btn-sm">Add Lesson</button>
+                        <button type="button" onclick="openAssignModal(${c.id})" class="btn btn-primary btn-sm" style="background: var(--accent);">Assignment</button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    function showCreateCourse() {
+        document.getElementById('course-modal').style.display = 'flex';
+    }
+    function openLessonModal(cid) {
+        document.getElementById('l-course-id').value = cid;
+        document.getElementById('lesson-modal').style.display = 'flex';
+    }
+    function openAssignModal(cid) {
+        document.getElementById('a-course-id').value = cid;
+        document.getElementById('assignment-modal').style.display = 'flex';
+    }
+    function openGradeModal(sid) {
+        document.getElementById('g-sub-id').value = sid;
+        document.getElementById('grade-modal').style.display = 'flex';
+    }
+
+    document.getElementById('save-course').onclick = async () => {
+        const res = await api.request(`${API_URL}/courses/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                title: document.getElementById('c-title').value,
+                description: document.getElementById('c-desc').value,
+                price: 499
+            })
+        });
+        if (res.ok) {
+            showToast('Course created!', 'success');
+            document.getElementById('course-modal').style.display = 'none';
+            init();
+        } else {
+            showToast('Failed to create course', 'error');
+        }
+    };
+
+    document.getElementById('save-lesson').onclick = async () => {
+        const res = await api.request(`${API_URL}/lessons/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                course: document.getElementById('l-course-id').value,
+                title: document.getElementById('l-title').value,
+                content: document.getElementById('l-content').value,
+                order: document.getElementById('l-order').value || 1
+            })
+        });
+        if (res.ok) {
+            showToast('Lesson added!', 'success');
+            document.getElementById('lesson-modal').style.display = 'none';
+            init();
+        } else {
+            showToast('Failed to add lesson', 'error');
+        }
+    };
+
+    document.getElementById('save-assignment').onclick = async () => {
+        const res = await api.request(`${API_URL}/assignments/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                course: document.getElementById('a-course-id').value,
+                title: document.getElementById('a-title').value,
+                description: document.getElementById('a-desc').value,
+                deadline: document.getElementById('a-deadline').value || null
+            })
+        });
+        if (res.ok) {
+            showToast('Assignment created!', 'success');
+            document.getElementById('assignment-modal').style.display = 'none';
+            init();
+        } else {
+            showToast('Failed to create assignment', 'error');
+        }
+    };
+
+    document.getElementById('save-grade').onclick = async () => {
+        const sid = document.getElementById('g-sub-id').value;
+        const res = await api.request(`${API_URL}/submissions/${sid}/grade/`, {
+            method: 'POST',
+            body: JSON.stringify({
+                score: document.getElementById('g-score').value,
+                grade: document.getElementById('g-grade').value,
+                feedback: document.getElementById('g-feedback').value
+            })
+        });
+        if (res.ok) {
+            showToast('Submission graded!', 'success');
+            document.getElementById('grade-modal').style.display = 'none';
+            init();
+        } else {
+            showToast('Failed to save grade', 'error');
+        }
+    };
+
+    init();
+</script>
+{% endblock %}
