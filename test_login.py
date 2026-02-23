@@ -1,9 +1,8 @@
 import requests
-url = "http://127.0.0.1:8001/api/accounts/register/"
+url = "http://127.0.0.1:8000/api/token/"
 data = {
-    "username": "testuser_unique_999",
-    "password": "testpassword123",
-    "role": "student"
+    "username": "Rana",
+    "password": "testpassword123"
 }
 response = requests.post(url, json=data)
 print(f"Status Code: {response.status_code}")

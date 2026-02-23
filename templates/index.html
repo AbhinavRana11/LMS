@@ -146,13 +146,13 @@
 
     loginForm.onsubmit = async (e) => {
         e.preventDefault();
-        const result = await api.login(
-            document.getElementById('login-username').value.trim(),
-            document.getElementById('login-password').value
-        );
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+        const result = await api.login(username, password);
         if (result.ok) {
             closeAuth();
-            window.location.reload();
+            showToast('Login successful!', 'success');
+            setTimeout(() => window.location.href = '/dashboard/', 500);
         } else {
             showToast(result.error || 'Invalid username or password', 'error');
         }
@@ -160,18 +160,25 @@
 
     registerForm.onsubmit = async (e) => {
         e.preventDefault();
+        const username = document.getElementById('reg-username').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const role = document.getElementById('reg-role').value;
+
         const res = await api.request(`${API_URL}/accounts/register/`, {
             method: 'POST',
-            body: JSON.stringify({
-                username: document.getElementById('reg-username').value,
-                password: document.getElementById('reg-password').value,
-                role: document.getElementById('reg-role').value
-            })
+            body: JSON.stringify({ username, password, role })
         });
         if (res.ok) {
-            showToast('Registration successful! Please login.', 'success');
-            registerContainer.style.display = 'none';
-            loginContainer.style.display = 'block';
+            showToast('Registration successful! Logging you in...', 'success');
+            // Auto login after registration
+            const loginRes = await api.login(username, password);
+            if (loginRes.ok) {
+                setTimeout(() => window.location.href = '/dashboard/', 800);
+            } else {
+                showToast('Registration successful! Please sign in manually.', 'info');
+                registerContainer.style.display = 'none';
+                loginContainer.style.display = 'block';
+            }
         } else {
             const errData = await res.json();
             const errMsg = Object.entries(errData).map(([k, v]) => `${k}: ${v}`).join(', ');
